@@ -1,0 +1,29 @@
+{
+  "name": "student-productivity-agent",
+  "version": "2.0.0",
+  "description": "Full-Stack Student Productivity Agent with Google APIs, Mongoose, and RAG",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "mcp:gmail": "node mcp-servers/gmail-mcp.js",
+    "mcp:calendar": "node mcp-servers/calendar-mcp.js",
+    "mcp:notion": "node mcp-servers/notion-mcp.js",
+    "mcp:drive": "node mcp-servers/drive-mcp.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "formdata-node": "^6.0.3",
+    "googleapis": "^140.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1",
+    "node-fetch": "^3.3.2"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyMate - Student Productivity Agent</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- 1. LOGIN PORTAL SPLASH (Visible if not authenticated) -->
+  <div id="login-screen" class="login-screen-container">
+    <!-- Center Glow behind the card -->
+    <div class="login-center-glow"></div>
+    
+    <!-- Tiny background elements scattered -->
+    <div class="bg-tiny-element elem-code">&lt;/&gt;</div>
+    <div class="bg-tiny-element elem-braces">{}</div>
+    <div class="bg-tiny-element elem-brackets">[]</div>
+    <div class="bg-tiny-element elem-parens">()</div>
+    <div class="bg-tiny-element elem-tags">&lt;&gt;</div>
+
+    <!-- Network Constellation Clusters -->
+    <div class="network-cluster cluster-top">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="20" cy="50" r="2.5" />
+        <circle cx="50" cy="20" r="2.5" />
+        <circle cx="80" cy="50" r="2.5" />
+        <circle cx="50" cy="80" r="2.5" />
+        <circle cx="50" cy="50" r="3.5" />
+        <line x1="20" y1="50" x2="50" y2="50" />
+        <line x1="50" y1="20" x2="50" y2="50" />
+        <line x1="80" y1="50" x2="50" y2="50" />
+        <line x1="50" y1="80" x2="50" y2="50" />
+      </svg>
+    </div>
+    <div class="network-cluster cluster-bottom-left">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="30" cy="30" r="2" />
+        <circle cx="70" cy="40" r="2" />
+        <circle cx="40" cy="80" r="2" />
+        <circle cx="90" cy="70" r="2" />
+        <line x1="30" y1="30" x2="70" y2="40" />
+        <line x1="70" y1="40" x2="90" y2="70" />
+        <line x1="40" y1="80" x2="70" y2="40" />
+        <line x1="30" y1="30" x2="40" y2="80" />
+      </svg>
+    </div>
+    <div class="network-cluster cluster-bottom-right">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="20" cy="60" r="2" />
+        <circle cx="60" cy="20" r="2" />
+        <circle cx="100" cy="50" r="2" />
+        <circle cx="60" cy="80" r="2" />
+        <line x1="20" y1="60" x2="60" y2="20" />
+        <line x1="60" y1="20" x2="100" y2="50" />
+        <line x1="100" y1="50" x2="60" y2="80" />
+        <line x1="60" y1="80" x2="20" y2="60" />
+        <line x1="20" y1="60" x2="100" y2="50" />
+      </svg>
+    </div>
+
+    <div class="login-card">
+      <div class="login-logo-minimal">
+        <i data-lucide="graduation-cap"></i>
+      </div>
+      <h2>StudyMate</h2>
+      <p>Organize. Learn. Achieve.</p>
+      
+      <a href="/api/auth/google" class="btn-google">
+        <svg viewBox="0 0 48 48" width="18" height="18">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24c0-1.63-.15-3.2-.43-4.75H24v9h12.75c-.55 2.87-2.17 5.3-4.61 6.94l7.19 5.56C43.53 36.31 46.5 30.77 46.5 24z"/>
+          <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.19-5.56c-2.02 1.35-4.6 2.17-8.7 2.17-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Sign in with Google
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. MAIN APP DASHBOARD (Visible if authenticated) -->
+  <div id="app-screen" class="app-container" style="display: none;">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <div class="logo-text">
+          <h1>StudyMate</h1>
+          <span class="sub-logo">Organize. Learn. Achieve.</span>
+        </div>
+      </div>
+
+      <div class="header-right-actions">
+        <div class="sync-actions">
+          <button id="btn-sync-gmail" class="btn-sync text-indigo" data-tooltip="Sync Gmail Inbox">
+            <i data-lucide="mail"></i> <span>Sync Mail</span>
+          </button>
+          <button id="btn-sync-drive" class="btn-sync text-sky" data-tooltip="Sync Google Drive Notes">
+            <i data-lucide="hard-drive"></i> <span>Sync Notes</span>
+          </button>
+        </div>
+        
+        <div class="system-time">
+          <i data-lucide="clock"></i>
+          <span id="time-display">00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Sidebar and Content Container -->
+    <div class="workspace-layout">
+      
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div>
+          <div style="font-size: 1.1rem; font-weight: 600; padding: 0.5rem var(--space-8); margin-bottom: var(--space-16); color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="graduation-cap" style="color: var(--primary); width: 20px; height: 20px;"></i>
+            StudyMate
+          </div>
+          
+          <div class="user-profile-badge">
+            <img id="user-picture" src="" alt="Profile picture">
+            <div class="profile-info">
+              <h3 id="user-name">Loading...</h3>
+              <span id="user-email">email@university.edu</span>
+            </div>
+          </div>
+  
+          <nav class="nav-menu">
+            <button class="nav-item active" data-tab="dashboard">
+              <i data-lucide="layout-dashboard"></i> Dashboard
+            </button>
+            <button class="nav-item" data-tab="assignments">
+              <i data-lucide="check-square"></i> Assignments
+            </button>
+            <button class="nav-item" data-tab="calendar">
+              <i data-lucide="calendar"></i> Calendar
+            </button>
+            <button class="nav-item" data-tab="planner">
+              <i data-lucide="calendar-days"></i> Study Planner
+            </button>
+            <button class="nav-item" data-tab="notes">
+              <i data-lucide="message-square"></i> Tutor
+            </button>
+            <button class="nav-item" data-tab="settings">
+              <i data-lucide="settings"></i> Settings
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="sidebar-divider" style="height: 1px; background-color: var(--border-color); margin: var(--space-16) 0;"></div>
+          <button id="btn-logout" class="btn btn-outline logout-btn" style="width: 100%;">
+            <i data-lucide="log-out"></i> Logout
+          </button>
+        </div>
+      </aside>
+
+      <!-- Content Panels -->
+      <main class="content-panel">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-content active">
+          <!-- 4 Stat Cards -->
+          <div class="stat-cards-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>Assignments Due</span>
+                <i data-lucide="book-open"></i>
+              </div>
+              <h2 id="stat-assignments-count">0</h2>
+              <p>Active tasks</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>Today's Focus Time</span>
+                <i data-lucide="timer"></i>
+              </div>
+              <h2 id="stat-study-hours">0h</h2>
+              <p>Scheduled study hours</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>Upcoming Deadline</span>
+                <i data-lucide="calendar"></i>
+              </div>
+              <h2 id="stat-upcoming-deadline">None</h2>
+              <p id="stat-upcoming-deadline-sub">No pending tasks</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>Notes Synced</span>
+                <i data-lucide="files"></i>
+              </div>
+              <h2 id="stat-notes-count">0</h2>
+              <p>Vectorized in RAG</p>
+            </div>
+          </div>
+
+          <!-- Main Dashboard Sections -->
+          <div class="dashboard-inner-grid">
+            <!-- Left Pane: Sync Log Console -->
+            <div class="card">
+              <div class="card-header">
+                <h2><i data-lucide="cpu"></i> Agent Execution Log</h2>
+              </div>
+              <div class="agent-console">
+                <div class="console-body" id="console-logs">
+                  <div class="log-entry system">> Welcome back. StudyMate Agent ready.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Middle Pane: Recent Emails -->
+            <div class="card">
+              <div class="card-header">
+                <h2><i data-lucide="mail"></i> Synced Emails Feed</h2>
+              </div>
+              <div class="inbox-list" id="dashboard-email-list">
+                <div class="empty-placeholder">No emails synced yet. Click "Sync Mail" to check for assignments.</div>
+              </div>
+            </div>
+
+            <!-- Right Pane: Study Activity Chart -->
+            <div class="card">
+              <div class="card-header">
+                <h2><i data-lucide="bar-chart-3"></i> Study Activity</h2>
+              </div>
+              <div class="study-chart-body">
+                <div class="chart-bar-container">
+                  <span class="chart-val">3h</span>
+                  <div class="chart-bar" style="height: 60px;"></div>
+                  <span class="chart-label">Mon</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-val">4h</span>
+                  <div class="chart-bar" style="height: 80px;"></div>
+                  <span class="chart-label">Tue</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-val">2h</span>
+                  <div class="chart-bar" style="height: 40px;"></div>
+                  <span class="chart-label">Wed</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-val">5h</span>
+                  <div class="chart-bar" style="height: 100px;"></div>
+                  <span class="chart-label">Thu</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-val">3h</span>
+                  <div class="chart-bar" style="height: 60px;"></div>
+                  <span class="chart-label">Fri</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: ASSIGNMENTS (KANBAN BOARD) -->
+        <section id="tab-assignments" class="tab-content">
+          <div class="kanban-container">
+            <div class="kanban-col-wrapper card">
+              <div class="card-header">
+                <span class="col-dot status-todo"></span>
+                <h2>To Do</h2>
+              </div>
+              <div class="kanban-cards-body" id="kanban-todo"></div>
+            </div>
+
+            <div class="kanban-col-wrapper card">
+              <div class="card-header">
+                <span class="col-dot status-progress"></span>
+                <h2>In Progress</h2>
+              </div>
+              <div class="kanban-cards-body" id="kanban-progress"></div>
+            </div>
+
+            <div class="kanban-col-wrapper card">
+              <div class="card-header">
+                <span class="col-dot status-done"></span>
+                <h2>Completed</h2>
+              </div>
+              <div class="kanban-cards-body" id="kanban-completed"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: CALENDAR -->
+        <section id="tab-calendar" class="tab-content">
+          <div class="card calendar-full-card">
+            <div class="card-header">
+              <h2><i data-lucide="calendar" class="text-emerald"></i> Academic Calendar</h2>
+            </div>
+            <div class="calendar-body">
+              <!-- Calendar Navigation Header -->
+              <div class="calendar-month-header">
+                <span class="calendar-month-title" id="calendar-month-year">June 2026</span>
+                <div class="calendar-nav">
+                  <button class="calendar-nav-btn" id="btn-prev-month"><i data-lucide="chevron-left"></i></button>
+                  <button class="calendar-nav-btn" id="btn-next-month"><i data-lucide="chevron-right"></i></button>
+                </div>
+              </div>
+              
+              <!-- Calendar Day Headers (Mon - Sun) -->
+              <div class="calendar-day-headers">
+                <span class="calendar-day-header">Mon</span>
+                <span class="calendar-day-header">Tue</span>
+                <span class="calendar-day-header">Wed</span>
+                <span class="calendar-day-header">Thu</span>
+                <span class="calendar-day-header">Fri</span>
+                <span class="calendar-day-header">Sat</span>
+                <span class="calendar-day-header">Sun</span>
+              </div>
+              
+              <!-- Month Grid -->
+              <div class="calendar-month-grid" id="calendar-month-grid">
+                <!-- Days are injected dynamically -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: STUDY PLANNER -->
+        <section id="tab-planner" class="tab-content">
+          <div class="planner-grid">
+            
+            <!-- Schedule Settings Card -->
+            <div class="card">
+              <div class="card-header">
+                <h2><i data-lucide="sliders" class="text-amber"></i> Study Plan Parameters</h2>
+              </div>
+              <div class="card-body planner-form">
+                <div class="form-group">
+                  <label for="planner-subjects">Enter Subjects (comma separated):</label>
+                  <input type="text" id="planner-subjects" placeholder="e.g. OOPS, DSA, OS" value="" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label for="planner-hours">Study Hours per Day:</label>
+                  <input type="number" id="planner-hours" min="1" max="12" value="4">
+                </div>
+                <button id="btn-generate-plan" class="btn btn-primary">
+                  <i data-lucide="cpu"></i> Generate AI Plan
+                </button>
+              </div>
+            </div>
+
+            <!-- Schedule Timetable Card -->
+            <div class="card schedule-display-card">
+              <div class="card-header">
+                <h2><i data-lucide="calendar-days" class="text-amber"></i> Generated Study Schedule</h2>
+              </div>
+              <div class="card-body">
+                <!-- Visual Goal / Focus Header -->
+                <div class="planner-visual-header">
+                  <div class="visual-stat-card">
+                    <h3>Weekly Goal</h3>
+                    <span class="val">28 Hours</span>
+                  </div>
+                  <div class="visual-stat-card">
+                    <h3>Weekly Progress</h3>
+                    <span class="val">75%</span>
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill"></div>
+                    </div>
+                  </div>
+                  <div class="subject-focus-grid">
+                    <div class="focus-card strong">
+                      <span style="color: var(--color-success); font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">Strong</span>
+                      <div style="font-weight: 600; font-size: 0.85rem;">Physics</div>
+                    </div>
+                    <div class="focus-card attention">
+                      <span style="color: var(--color-warning); font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">Attention</span>
+                      <div style="font-weight: 600; font-size: 0.85rem;">Mathematics</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Schedule display container -->
+                <div id="planner-schedule-display">
+                  <div class="empty-placeholder">No plan generated yet. Fill out the parameters to generate a balanced schedule.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- TAB 5: TUTOR RAG QA -->
+        <section id="tab-notes" class="tab-content">
+          <div class="rag-layout">
+            
+            <!-- Ingested Materials Panel -->
+            <div class="card doc-sources-card">
+              <div class="card-header">
+                <h2><i data-lucide="files" class="text-sky"></i> Synced Notes Directory</h2>
+              </div>
+              <div class="card-body sources-body" id="rag-sources-list">
+                <div class="empty-placeholder">No active PDF study guides are registered in ChromaDB. Click "Sync Notes" above to read them from Classroom_Backup.</div>
+              </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="card chat-card">
+              <div class="card-header">
+                <h2><i data-lucide="message-square" class="text-sky"></i> AI Academic Tutor (Notes Search)</h2>
+              </div>
+              <div class="chat-body" id="rag-chat-body">
+                <div class="chat-bubble bot-message">
+                  Hi! I'm your AI Tutor. Ask me any questions based on the lecture slides and PDF notes you synced from your Google Drive folder.
+                </div>
+              </div>
+              <div class="chat-input-wrapper">
+                <input type="text" id="rag-chat-input" placeholder="Summarize the PDF..." autocomplete="off">
+                <button id="btn-send-rag"><i data-lucide="send"></i></button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- TAB 6: SETTINGS -->
+        <section id="tab-settings" class="tab-content">
+          <div class="card settings-card" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+            <div class="card-header">
+              <h2><i data-lucide="settings"></i> System Settings & Preferences</h2>
+            </div>
+            <div class="card-body settings-body" style="flex: 1; overflow-y: auto; padding: var(--space-16) var(--space-24);">
+              <div class="settings-grid">
+                
+                <!-- Section 1: AI Preferences -->
+                <div class="settings-section">
+                  <h3><i data-lucide="cpu" style="color: var(--primary); width: 16px; height: 16px;"></i> AI Model Engine</h3>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Tutor Model</span>
+                      <p>Select model for study Q&A.</p>
+                    </div>
+                    <select class="settings-input" id="setting-ai-model">
+                      <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                      <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                      <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    </select>
+                  </div>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Temperature</span>
+                      <p>Adjust AI creativity level.</p>
+                    </div>
+                    <input type="range" id="setting-ai-temp" min="0" max="1" step="0.1" value="0.3" style="accent-color: var(--primary); width: 100px;">
+                  </div>
+                </div>
+
+                <!-- Section 2: Study Planner Defaults -->
+                <div class="settings-section">
+                  <h3><i data-lucide="calendar" style="color: var(--color-success); width: 16px; height: 16px;"></i> Scheduler Defaults</h3>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Default Target Hours</span>
+                      <p>Target hours study per day.</p>
+                    </div>
+                    <input type="number" class="settings-input" id="setting-planner-hours" min="1" max="12" value="4">
+                  </div>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Study Mode</span>
+                      <p>Pacing of study schedule.</p>
+                    </div>
+                    <select class="settings-input" id="setting-planner-mode">
+                      <option value="balanced">Balanced</option>
+                      <option value="intensive">Intensive</option>
+                      <option value="relaxed">Relaxed</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Section 3: Integrations & Badges -->
+                <div class="settings-section">
+                  <h3><i data-lucide="hard-drive" style="color: var(--color-info); width: 16px; height: 16px;"></i> Services & Integrations</h3>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Google Account Sync</span>
+                      <p>Gmail & Calendar status.</p>
+                    </div>
+                    <span class="badge-status active"><span style="width: 6px; height: 6px; background: #4ade80; border-radius: 50%;"></span> Connected</span>
+                  </div>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Backup Folder</span>
+                      <p>Drive source folder name.</p>
+                    </div>
+                    <input type="text" class="settings-input" id="setting-drive-folder" value="Classroom_Backup">
+                  </div>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Database Engine</span>
+                      <p>ChromaDB & MongoDB Atlas.</p>
+                    </div>
+                    <span class="badge-status active"><span style="width: 6px; height: 6px; background: #4ade80; border-radius: 50%;"></span> Active</span>
+                  </div>
+                  <div class="settings-item" style="border-top: 1px solid var(--border-color); padding-top: var(--space-12); margin-top: var(--space-8);">
+                    <div class="settings-item-label">
+                      <span>Show Setup Guide</span>
+                      <p>View Google Cloud & DB details.</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="setting-show-instructions">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Section 4: General Preferences -->
+                <div class="settings-section">
+                  <h3><i data-lucide="sliders" style="color: var(--color-warning); width: 16px; height: 16px;"></i> UI Preferences</h3>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Toast Notifications</span>
+                      <p>Display status overlays.</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="setting-ui-toasts" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="settings-item">
+                    <div class="settings-item-label">
+                      <span>Agent Log Printing</span>
+                      <p>Print activity log in home console.</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="setting-ui-logs" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Collapsible Setup Instructions -->
+              <div class="settings-instructions-wrapper" id="settings-instructions-section" style="margin-top: var(--space-24); border-top: 1px solid var(--border-color); padding-top: var(--space-24); display: none;">
+                <div class="settings-section" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color); border-radius: 10px; padding: var(--space-20); display: flex; flex-direction: column; gap: var(--space-16);">
+                  <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: var(--space-8); display: flex; align-items: center; gap: 8px; margin-top: 0;"><i data-lucide="help-circle" style="color: var(--primary); width: 16px; height: 16px;"></i> Application Setup & Instructions</h3>
+                  
+                  <div style="display: flex; flex-direction: column; gap: var(--space-16);">
+                    <div>
+                      <h4 style="color: var(--primary); margin: 0 0 6px 0; font-size: 0.85rem; font-weight: 600;">1. Google Cloud Configuration</h4>
+                      <p style="margin: 0; color: var(--text-muted); font-size: 0.78rem; line-height: 1.4;">
+                        StudyMate interacts with Gmail, Calendar, and Drive. Make sure you place your Google Developer client credentials file named <code>client_secret.json</code> in your project root: <code>C:\Users\Ulhas\Desktop\MCP\client_secret.json</code>.
+                      </p>
+                      <div style="background: rgba(124, 92, 252, 0.05); border: 1px solid rgba(124, 92, 252, 0.15); padding: var(--space-12); border-radius: 6px; margin-top: 8px; font-size: 0.78rem; display: flex; align-items: center; gap: 8px;">
+                        <strong style="color: var(--primary);">Redirect URI Required:</strong> <code style="color: var(--text-main); font-family: 'JetBrains Mono', monospace;">http://localhost:5000/api/auth/callback</code>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 style="color: var(--primary); margin: 0 0 6px 0; font-size: 0.85rem; font-weight: 600;">2. MongoDB Connection Link</h4>
+                      <p style="margin: 0; color: var(--text-muted); font-size: 0.78rem; line-height: 1.4;">
+                        By default, the application connects to a local MongoDB instance. If you want to use your own database link (such as MongoDB Atlas), edit the <code>MONGO_URI</code> environment variable inside the <code>.env</code> file in your project root:
+                      </p>
+                      <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 6px; border: 1px dashed var(--border-color); margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #38bdf8; overflow-x: auto; white-space: nowrap;">
+                        MONGO_URI=mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.example.mongodb.net/studymate
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 style="color: var(--primary); margin: 0 0 6px 0; font-size: 0.85rem; font-weight: 600;">3. Gemini AI Extractions</h4>
+                      <p style="margin: 0; color: var(--text-muted); font-size: 0.78rem; line-height: 1.4;">
+                        Ensure you have set the <code>GEMINI_API_KEY</code> environment variable in your <code>.env</code> file to enable intelligent homework metadata parsing and study schedule optimization.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <!-- Command Bar Overlay (Ctrl + K) -->
+  <div id="command-bar" class="command-bar-overlay">
+    <div class="command-bar-modal">
+      <div class="command-bar-search">
+        <i data-lucide="search"></i>
+        <input type="text" id="command-bar-input" placeholder="Type a command or search..." autocomplete="off">
+      </div>
+      <div class="command-bar-results" id="command-bar-results"></div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App -->
+  <script src="app.js"></script>
+</body>
+</html>

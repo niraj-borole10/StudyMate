@@ -1,0 +1,34 @@
+# Dependency Directories
+node_modules/
+mcp-servers/node_modules/
+rag-service/venv/
+rag-service/.venv/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local Credentials & Secrets
+.env
+.env.local
+.env.development
+.env.production
+tokens.json
+client_secret.json
+credentials.json
+
+# Local Databases & Vector Stores
+rag-service/chroma_db/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE Settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
