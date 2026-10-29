@@ -12,11 +12,18 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main CSS -->
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="SplashCursor.css">
+  <link rel="stylesheet" href="ElectricBorder.css">
+  <link rel="stylesheet" href="ParticleText.css">
 </head>
 <body>
 
   <!-- 1. LOGIN PORTAL SPLASH (Visible if not authenticated) -->
   <div id="login-screen" class="login-screen-container">
+    <!-- Fluid Splash Cursor Background Effect -->
+    <div class="splash-cursor" style="z-index: 50;" aria-hidden="true">
+      <canvas class="splash-cursor__canvas"></canvas>
+    </div>
     <!-- Center Glow behind the card -->
     <div class="login-center-glow"></div>
     
@@ -67,11 +74,14 @@
       </svg>
     </div>
 
-    <div class="login-card">
+    <div class="login-card electric-border">
       <div class="login-logo-minimal">
         <i data-lucide="graduation-cap"></i>
       </div>
-      <h2>StudyMate</h2>
+      <div id="login-particle-text" class="particle-text">
+        <canvas class="particle-text__canvas" aria-hidden="true"></canvas>
+        <span class="particle-text__sr">StudyMate</span>
+      </div>
       <p>Organize. Learn. Achieve.</p>
       
       <a href="/api/auth/google" class="btn-google">
@@ -615,6 +625,9 @@
   </div>
 
   <!-- Main JavaScript App -->
+  <script src="SplashCursor.js"></script>
+  <script src="ElectricBorder.js"></script>
+  <script src="ParticleText.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

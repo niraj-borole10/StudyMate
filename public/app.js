@@ -1,3 +1,6 @@
+// API base URL — empty string = same origin (Render). Set to Render URL when serving from Vercel.
+const API_BASE = window.__API_BASE__ || '';
+
 
 let currentUser = null;
 let currentActiveTab = "dashboard";
@@ -5,6 +8,73 @@ let currentActiveTab = "dashboard";
 const loginScreen = document.getElementById("login-screen");
 const appScreen = document.getElementById("app-screen");
 const clockEl = document.getElementById("time-display");
+
+// Initialize SplashCursor for Login Screen
+let loginSplashCursor = null;
+function initLoginSplashCursor() {
+  if (!loginSplashCursor && typeof SplashCursor === "function") {
+    loginSplashCursor = SplashCursor({
+      target: "#login-screen",
+      rainbow: true,
+      size: 1,
+      force: 1,
+      swirl: 3,
+      trail: 1,
+      clickSplash: true
+    });
+  }
+}
+initLoginSplashCursor();
+
+// Initialize ElectricBorder for Login Card
+let loginElectricBorder = null;
+function initLoginElectricBorder() {
+  if (!loginElectricBorder && typeof ElectricBorder === "function") {
+    loginElectricBorder = ElectricBorder({
+      target: ".login-card",
+      color: "#7df9ff",
+      speed: 1,
+      chaos: 0.5,
+      spread: 0.6,
+      strands: 3,
+      thickness: 1.5,
+      borderRadius: 24
+    });
+  }
+}
+initLoginElectricBorder();
+
+// Initialize ParticleText for Login Title
+let loginParticleText = null;
+function initLoginParticleText() {
+  if (!loginParticleText && typeof ParticleText === "function") {
+    loginParticleText = ParticleText({
+      target: "#login-particle-text",
+      text: "StudyMate",
+      particleSize: 2.5,
+      density: 2,
+      color: "#F5F7FA",
+      highlightColor: "#7df9ff",
+      highlightMode: "motion",
+      shape: "circle",
+      intro: "gather",
+      scatter: 160,
+      gatherDuration: 1600,
+      stagger: 420,
+      clickBurst: true,
+      burstStrength: 1,
+      pointerRepel: 40,
+      repelRadius: 110,
+      idleDrift: 0.7,
+      trigger: "hover",
+      fontSize: "3.5rem",
+      fontWeight: 800,
+      fontFamily: "inherit",
+      glow: true
+    });
+  }
+}
+initLoginParticleText();
 
 
 const userPicture = document.getElementById("user-picture");
@@ -45,6 +115,21 @@ function showLoginScreen() {
   loginScreen.style.display = "flex";
   appScreen.style.display = "none";
   lucide.createIcons();
+  if (loginSplashCursor && loginSplashCursor.wake) {
+    loginSplashCursor.wake();
+  } else {
+    initLoginSplashCursor();
+  }
+  if (loginElectricBorder && loginElectricBorder.wake) {
+    loginElectricBorder.wake();
+  } else {
+    initLoginElectricBorder();
+  }
+  if (loginParticleText && loginParticleText.wake) {
+    loginParticleText.wake();
+  } else {
+    initLoginParticleText();
+  }
 }
 
 function showAppScreen() {
@@ -126,13 +211,39 @@ async function loadDashboardData() {
     const todoAssignments = assignments.filter(a => a.status !== "completed");
     document.getElementById("stat-assignments-count").textContent = todoAssignments.length;
 
-    // Calculate closest upcoming (or most urgent overdue) deadline
+    // Calculate closest upcoming deadline (excluding passed / overdue deadlines)
+    const now = new Date();
+    const nowTime = now.getTime();
+
+    const getEffectiveDeadlineTime = (deadlineVal) => {
+      if (!deadlineVal) return null;
+      const d = new Date(deadlineVal);
+      if (isNaN(d.getTime())) return null;
+
+      // If midnight UTC or local midnight (typical for date-only values like YYYY-MM-DD),
+      // the deadline is valid through the end of that calendar day (23:59:59.999 local time)
+      const isUtcMidnight = (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0);
+      const isLocalMidnight = (d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0);
+
+      if (isUtcMidnight || isLocalMidnight) {
+        const endOfDay = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999);
+        return endOfDay.getTime();
+      }
+      return d.getTime();
+    };
+
+    // Filter only assignments whose deadline has not yet passed
+    const upcomingAssignments = todoAssignments.filter(a => {
+      const dueTime = getEffectiveDeadlineTime(a.deadline);
+      return dueTime !== null && dueTime >= nowTime;
+    });
+
     let closestAssignment = null;
     let minDeadlineTime = Infinity;
-    todoAssignments.forEach(a => {
-      const deadlineTime = new Date(a.deadline).getTime();
-      if (deadlineTime < minDeadlineTime) {
-        minDeadlineTime = deadlineTime;
+    upcomingAssignments.forEach(a => {
+      const dueTime = getEffectiveDeadlineTime(a.deadline);
+      if (dueTime < minDeadlineTime) {
+        minDeadlineTime = dueTime;
         closestAssignment = a;
       }
     });
@@ -144,18 +255,11 @@ async function loadDashboardData() {
         const friendlyDate = new Date(closestAssignment.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" });
         deadlineEl.textContent = friendlyDate;
         deadlineSubEl.textContent = closestAssignment.title;
-        
-        // Highlight in red if overdue
-        const nowTime = new Date().getTime();
-        if (minDeadlineTime < nowTime) {
-          deadlineEl.style.color = "var(--color-error)";
-        } else {
-          deadlineEl.style.color = "";
-        }
+        deadlineEl.style.color = "";
       } else {
         deadlineEl.textContent = "None";
         deadlineEl.style.color = "";
-        deadlineSubEl.textContent = "No pending tasks";
+        deadlineSubEl.textContent = "No upcoming tasks";
       }
     }
 

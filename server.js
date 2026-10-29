@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import path from "path";
 
 import connectDB from "./config/db.js";
@@ -15,6 +16,10 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// CORS (allows Vercel frontend to call this API)
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5000']
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 
 // Standard Middlewares
 app.use(express.json());

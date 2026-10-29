@@ -1,0 +1,17 @@
+.electric-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.electric-border__canvas {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+/* Ensure inner card content sits cleanly above the electric canvas */
+.login-card > *:not(.electric-border__canvas) {
+  position: relative;
+  z-index: 2;
+}

@@ -33,7 +33,8 @@ export function getOAuth2Client() {
   const redirectUri = redirect_uris ? redirect_uris[0] : "http://localhost:3000/oauth2callback";
 
   // Use the callback route served by our Express server (port 5000)
-  const expressRedirectUri = `http://localhost:${process.env.PORT || 5000}/api/auth/callback`;
+  const expressRedirectUri = process.env.OAUTH_REDIRECT_URI
+    || `http://localhost:${process.env.PORT || 5000}/api/auth/callback`;
 
   return new google.auth.OAuth2(client_id, client_secret, expressRedirectUri);
 }
@@ -139,7 +140,7 @@ router.get("/callback", async (req, res) => {
     // Set JWT in HTTP-Only Cookie
     res.cookie("token", jwtToken, {
       httpOnly: true,
-      secure: false, // Set to true if running on HTTPS
+      secure: process.env.NODE_ENV === 'production', // HTTPS in production
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
