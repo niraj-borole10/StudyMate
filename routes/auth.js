@@ -11,30 +11,41 @@ const SECRET_PATH = path.join(process.cwd(), "client_secret.json");
 const ALT_SECRET_PATH = path.join(process.cwd(), "credentials.json");
 const JWT_SECRET = process.env.JWT_SECRET || "super_secret_jwt_key";
 
-// Helper to check if credentials file exists
+// Helper to check if credentials are available (env vars OR file)
 export function hasClientSecrets() {
+  // Prefer env vars — works on Render/Vercel without any file
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) return true;
   return fs.existsSync(SECRET_PATH) || fs.existsSync(ALT_SECRET_PATH);
 }
 
 // Helper to get configured OAuth2 client
 export function getOAuth2Client() {
+  const expressRedirectUri =
+    process.env.OAUTH_REDIRECT_URI ||
+    `http://localhost:${process.env.PORT || 5000}/api/auth/callback`;
+
+  // Use env vars if available (production / Render)
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    return new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      expressRedirectUri
+    );
+  }
+
+  // Fallback: read from local file (development)
   let secretContent;
   if (fs.existsSync(SECRET_PATH)) {
     secretContent = fs.readFileSync(SECRET_PATH, "utf8");
   } else if (fs.existsSync(ALT_SECRET_PATH)) {
     secretContent = fs.readFileSync(ALT_SECRET_PATH, "utf8");
   } else {
-    throw new Error("Missing client_secret.json credentials in root project folder.");
+    throw new Error("Missing GOOGLE_CLIENT_ID/SECRET env vars or client_secret.json file.");
   }
 
   const credentials = JSON.parse(secretContent);
   const config = credentials.web || credentials.installed;
-  const { client_id, client_secret, redirect_uris } = config;
-  const redirectUri = redirect_uris ? redirect_uris[0] : "http://localhost:3000/oauth2callback";
-
-  // Use the callback route served by our Express server (port 5000)
-  const expressRedirectUri = process.env.OAUTH_REDIRECT_URI
-    || `http://localhost:${process.env.PORT || 5000}/api/auth/callback`;
+  const { client_id, client_secret } = config;
 
   return new google.auth.OAuth2(client_id, client_secret, expressRedirectUri);
 }
@@ -53,7 +64,7 @@ const SCOPES = [
 router.get("/google", (req, res) => {
   try {
     if (!hasClientSecrets()) {
-      console.log("⚠️ No Google client secret file found in workspace. Routing to Sandbox Mode.");
+      console.log("⚠️ No Google client secret found. Routing to Sandbox Mode.");
       return res.redirect(`/api/auth/callback?sandbox=true`);
     }
 
@@ -70,7 +81,7 @@ router.get("/google", (req, res) => {
       <html>
         <body style="font-family: sans-serif; padding: 40px; background-color: #0f172a; color: #f8fafc; text-align: center;">
           <h1 style="color: #ef4444;">OAuth Setup Required</h1>
-          <p>Please make sure you have placed your downloaded 'client_secret.json' inside the project folder.</p>
+          <p>Please make sure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set as environment variables.</p>
           <p style="color: #94a3b8; font-size: 0.95rem;">${error.message}</p>
         </body>
       </html>
@@ -102,7 +113,7 @@ router.get("/callback", async (req, res) => {
       tokens = { sandbox: true };
     } else {
       const oauth2Client = getOAuth2Client();
-      
+
       // Exchange callback code for tokens
       const { tokens: exchangedTokens } = await oauth2Client.getToken(code);
       tokens = exchangedTokens;
@@ -140,7 +151,7 @@ router.get("/callback", async (req, res) => {
     // Set JWT in HTTP-Only Cookie
     res.cookie("token", jwtToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // HTTPS in production
+      secure: process.env.NODE_ENV === "production", // HTTPS in production
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
